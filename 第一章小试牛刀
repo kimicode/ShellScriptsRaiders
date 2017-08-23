@@ -1,0 +1,1053 @@
+###1.1简介
+
+----------
+1.1.1 bash（Bourne Again Shell），它是目前大多数GNU/Linux系统默认的shell环境.
+
+----------
+1.1.2.命令都是在shell终端中输入并执行。打开终端会出现一个提示符。如下：
+
+    username@hostname$
+    
+或者：
+    
+    root@hostname#
+    
+ **$表示普通用户，#表示管理员用户root。root是系统中权限最高的用户**
+ 
+ps:以root运行shell并不是一个好主意。root具有较高的权限，命令中出现的输入错误可能或造成更严重的破坏。 使用普通用户登录系统，借助sudo这类 工具运行特权命令。
+
+----------
+
+
+1.1.3.shell通常是一个以shebang起始的文本文件。如下：
+
+    #!/bin/bash
+
+  #!位于解释器路径之前。/bin/bash是解释器命令路径。
+  
+  如果没有声明，则脚本将在默认的shell中执行，默认shell是由用户所在的系统定义为执行shell脚本的shell
+  
+  shebang是两个字符名称的组合。在unix里，用sharp或hash来称呼"#"，用bang来称呼惊叹号"!"
+  
+----------
+1.1.4.脚本运行的两种方式：
+ 
+*  一种将脚本作为bash的命令行参数。例：
+    `$ bash script.sh`
+    使用这种方式，不用在脚本中写#！
+
+*   另一种授予脚本执行权限，将其变为可执行文件。
+    `chmod +x script.sh`
+     该命令赋予所有用户script.sh文件可执行权限。
+     `$ ./scrips.sh #./表示当前目录`
+
+----------
+1.1.5.当启动shell时，它一开始会执行一组命令来定义诸如提示文本、颜色等各类设置。这组命令来自位于用户主目录中的脚本文件~/.bashrc（对于登录shell则是~/.bash_profile）。 Bash还维护了一个历史记录文件~/.bash_history，用于保存用户运行过的命令。
+
+~表示主目录，它通常是/home/user，其中user是用户名，如果是root用户，则为/root。
+登录shell是登录主机后获得的那个shell。如果登录图形界面环境（比如NOME、KDE等）后打开了一个shell，就不是登录shell。
+
+----------
+1.1.6.每个命令或是命令序列是通过使用分号或换行符来分割的。
+
+    $cmd1 ; cmd2
+
+等同于：
+
+    $cmd1
+$cmd2
+
+字符#指明注释的开始
+注释部分以#为起始，一直延续到行尾。注释行通常用于为代码提供注释信息，或者停止执行某行代码。
+
+----------
+###1.2终端打印
+终端是交互式工具，用户可以通过它与shell环境进行交互。在终端中打印文本是绝大多数shell脚本和工具日常需要执行的基本任务。
+
+----------
+1.2.1实战演练
+    **echo是用于终端打印的基本命令。**
+    在默认情况下，echo在每次调用后会添加一个换行符。
+    
+文本输出（不含转义字符），使用双引号，单引号，不使用双引号，都可以得到同样的输出结果。例：
+
+    $ echo "Welcome to Bash" #双引号
+    Welcome to Bash
+    $ echo Welcome to Bash #不加引号
+      Welcome to Bash
+    $ echo 'text in quotes' #单引号
+      text in quotes
+
+含有转义字符的文本，**不放在双引号中。或者在双引号中特殊字符前添加\ 将其转义**。例：
+
+    $ echo Hello world !
+ 或者
+    
+    $ echo 'Hello world !'
+
+或者
+    
+    $ echo "Hello world \!"##将转义字符放在前面
+
+ps:
+1.使用不带引号的echo时，没法在所要显示的文本中使用分号;，因为分号在bashshell中被用作命令定界符。
+2.以`echo hello;hello`为例，echo hello 被视为一个命令，第二个hello视为另一个命令。
+3.变量替换在单引号中无效。
+
+另一个可用于终端打印的命令printf。
+    
+    $printf "Hello world"
+
+在默认情况下，printf并不像echo命令一样会自动添加换行符，我们必须在需要的时候手动添加
+
+    #!/bin/bash
+    #文件名: printf.sh
+    printf "%-5s %-10s %-4s\n" No Name Mark
+    printf "%-5s %-10s %-4.2f\n" 1 Sarath 80.3456
+    printf "%-5s %-10s %-4.2f\n" 2 James 90.9989
+    printf "%-5s %-10s %-4.2f\n" 3 Jeff 77.564
+会得到如下格式化的输出：
+
+    No Name Mark
+    1 Sarath 80.35
+    2 James 91.00
+    3 Jeff 77.56
+
+----------
+
+1.2.2工作原理
+   
+ - %s、 %c、 %d和%f都是格式替换符。
+
+ - %-5s指明了一个格式为左对齐且宽度为5的字符串替换（**-表示左对齐**）。如果不用-指定对齐方式，字符串就采用右对齐形式。宽度指定了保留给某个变量的字符数。
+
+ - 对Name而言，保留宽度是10。因此，任何Name字段的内容都会被显示在10字符宽的保留区域内，如果内容不足10个字符，余下的则以空格符填充。
+
+ - 对于Mark字段，将其格式化为%-4.2f，其中.2指定保留2个小数位。
+
+----------
+1.2.3 补充内容
+    1.  在echo中转义换行符 
+        在默认情况下，echo会将一个换行符追加到输出文本的尾部。可以使用选项-n来忽略结尾的换行符。
+        echo –e "包含转义序列的字符串"
+        
+    echo -e "1\t2\t3"
+    1 2 3
+2.打印彩色输出 
+    **字体颜色**
+        每种颜色都有对应的颜色码。比如：重置=0，黑色=30，红色=31，绿色=32，黄色=33，蓝色=34，洋红=35，青色=36，白色=37。
+        例：
+        
+    echo -e "\e[1;31m This is red text \e[0m"
+\e[1;31将颜色设为红色，\e[0m将颜色重新置回。只需要将31替换成想要的颜色码就可以了。
+    **背景颜色**
+        要设置彩色背景，经常使用的颜色码是：重置=0，黑色=40，红色=41，绿色=42，黄色=43，蓝色=44，洋红=45，青色=46，白色=47。
+        例：
+    
+    echo -e "\e[1;42m Green Background \e[0m"
+    
+
+----------
+###1.3变量和环境变量
+    有一些特殊的变量会被shell环境和操作系统环境用来存储一些特别的值，这类变量就被称为**环境变量**。
+
+----------
+1.3.1预备知识
+    假设有一个叫做gedit的应用程序正在运行。我们可以使用pgrep命令获得gedit的进程ID：
+    
+    $ pgrep gedit
+    12501
+
+那么，你就可以通过以下命令获得与该进程相关的环境变量：
+    
+    $ cat /proc/12501/environ
+    GDM_KEYBOARD_LAYOUT=usGNOME_KEYRING_PID=1560USER=slynuxHOME=/home/slynux
+
+上面的命令返回一个包含环境变量以及对应变量值的列表。每一个变量以name=value的形式来描述，彼此之间由null字符（\0）分隔。如果你将\0替换成\n，那么就可以将输出重新格式
+化，使得每一行显示一组“变量=值”。替换可以使用tr命令来实现：
+
+    $ cat /proc/12501/environ | tr '\0' '\n'
+
+----------
+1.3.2实战演练  
+
+    var=value   #变量赋值
+    var = value #相等操作
+  
+ps:两者并不相同，应注意。
+在变量名之前加上$前缀就可以打印出变量的内容：
+
+    var="value" #给变量var赋值
+    echo $var
+echo "$var"
+或者
+    
+    echo ${var}
+
+输出如下：
+    
+    value
+
+环境变量是未在当前进程中定义，而从父进程中继承而来的变量。
+export命令用来设置环境变量。至此之后，从当前shell脚本执行的任何应用程序都会继承这个变量。
+
+ shell会自动在PATH环境变量所包含的目录列表中（各目录路径之间以冒号分隔）查找对应的可执行文件。 PATH通常定义在/etc/environment或/etc/profile或~/.bashrc中。如果需要在PATH中添加一条新路径，可以使用：
+ 
+    export PATH="$PATH:/home/user/bin"
+
+也可以使用
+
+    $ PATH="$PATH:/home/user/bin"
+    $ export PATH
+    #查看
+    $ echo $PATH
+    /home/slynux/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/home/user/bin
+
+这样，我们就将/home/user/bin添加到了PATH中
+
+注意：
+
+    echo '$var' 
+$var #不会打印出值，回原样输出    
+
+----------
+1.3.3补充内容
+    1.获取字符串长度 #
+    
+    length=${#var}
+例：
+    
+    $ var=12345678901234567890$
+    echo ${#var}
+    20
+
+2.识别当前所使用的shell
+    
+    echo $SHELL
+
+也可以：
+    
+    echo $0
+    
+例如：
+
+    $ echo $SHELL
+    /bin/bash
+    $ echo $0
+    /bin/bash
+
+3.检查是否为超级用户
+    UID是一个重要的环境变量，可以用于检查当前脚本是以超级用户还是以普通用户的身份运行的
+    
+    echo $UID #root用户的UID是0
+    
+4.修改Bash提示字符串
+    打开终端或是运行shell时，会看到类似于user@hostname:/home/$的提示字符串。
+    我们可以利用PS1环境变量来定制提示文本。
+    默认的shell提示文本是在文件~/.bashrc中的某一行设置的。
+    
+使用如下命令列出设置变量PS1的那一行:
+
+    $ cat ~/.bashrc | grep PS1
+PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+
+如果要设置一个定制的提示字符串，可以输入：
+
+    slynux@localhost: ~$ PS1="PROMPT>"
+    PROMPT> Type commands here #提示字符串已经改变
+
+----------
+###1.4使用函数添加环境变量
+   环境变量通常用于存储路径列表，这些路径用于搜索可执行文件、库文件等
+
+    PATH=/usr/bin;/bin
+    
+只要shell需要运行二进制可执行文件时，它会首先查找/usr/bin，然后是/bin。
+    
+    LD_LIBRARY_PATH=/usr/lib;/lib
+ 二进制文件在bin目录中，库文件在lib目录中。
+  
+----------
+1.4.1 实战演练
+        方法1：
+    
+    export PATH=/opt/myapp/bin:$PATH
+export LD_LIBRARY_PATH=/opt/myapp/lib;$LD_LIBRARY_PATH
+        
+方法2：
+        
+    prepend() { [ -d "$2" ] && eval $1=\"$2':'\$$1\" && export $1; }
+
+----------
+1.4.2工作原理
+    prepend()的函数，它首先检查该函数第二个参数所指定的目录是否存在。如果存在，eval表达式将第一个参数所指定的变量值设置成第二个参数的值加上“:”（路径分隔符），随后再跟上首个参数的原始值。
+    改进方法2：
+    
+    prepend() { [ -d "$2" ] && eval $1=\"$2\$\{$1:+':'\$$1\}\" && export $1 ; }
+    
+    ${parameter:+expression}  #**如果parameter有值且不为空，则使用expression的值**。
+通过这次修改，在追加环境变量时，当且仅当旧值存在，才会增加
+
+----------
+###1.5使用shell进行数学计算
+   
+----------
+1.5.1预备知识
+
+----------
+1.5.2实战演练
+    (1) 可以用普通的变量赋值方法定义数
+    
+    #!/bin/bash
+    no1=4;
+    no2=5;
+(2) let命令可以直接执行基本的算术操作。**当使用let时，变量名之前不需要再添加$**，
+例如：
+
+    let result=no1+no2
+    echo $result
+    
+ 自加操作
+
+    $ let no1++
+    
+ 自减操作
+
+    $ let no1--
+
+ 简写形式
+
+    let no+=6
+    let no-=6
+
+它们分别等同于let no=no+6和let no=no-6。
+ 其他方法
+操作符[]的使用方法和let命令类似：
+
+    result=$[ no1 + no2 ]
+
+在[]中也可以使用$前缀，例如：
+
+    result=$[ $no1 + 5 ]
+
+也可以使用(())，但使用(())时，变量名之前需要加上$
+    
+    result=$(( no1 + 50 ))
+    
+expr同样可以用于基本算术操作：
+
+    result=`expr 3 + 4`
+    result=$(expr $no1 + 5)
+    
+(3) bc是一个用于数学运算的高级工具，这个精密计算器包含了大量的选项
+
+    echo "4 * 0.56" | bc
+    2.24
+    
+ 设定小数精度。 在下面的例子中，参数scale=2将小数位个数设置为2。因此，
+bc将会输出包含两个小数位的数值。
+
+    echo "scale=2;3/8" | bc
+    0.37
+    
+ 进制转换。 用bc可以将一种进制系统转换为另一种。来看看如何将十进制转换成二进制，然后再将二进制转换回十进制
+    
+    #!/bin/bash
+    用途：数字转换
+    no=100
+    echo "obase=2;$no" | bc #obase 输出二进制
+1100100
+no=1100100
+echo "obase=10;ibase=2;$no" | bc #输入二进制 输出十进制
+    100
+    
+ 计算平方以及平方根    
+    
+    echo "sqrt(100)" | bc #Square root
+    echo "10^10" | bc #Square
+    
+----------
+###1.6玩转文字描述符及重定向
+    最常见的文件描述符是stdin、stdout和stderr。我们甚至可以将某个文件描述符的内容重定向到另一个文件描述符中
+    
+----------
+1.6.1预备知识
+    0 —— stdin (标准输入)
+    1 —— stdout(标准输出)
+    2 —— stderr(标准错误)
+
+----------
+1.6.2实战演练
+
+(1) 用下面的方法可以将输出文本重定向或保存到一个文件中：
+
+    $ echo "This is a sample text 1" > temp.txt
+
+这种方法通过截断文件的方式，将输出文本存储到文件temp.txt中，也就是说在把echo命令的输出写入文件之前，temp.txt中的内容首先会被清空。
+(2) 将文本追加到目标文件中，看下面的例子：
+
+    $ echo "This is sample text 2" >> temp.txt
+
+(3) cat命令查看文件
+(4)**成功和不成功的命令**
+当一个命令发生错误并退回时，它会返回一个非0的退出状态；而**当命令成功完成后，它会返回数字0**。退出状态可以从特殊变量$? 中获得（在命令执行之后立刻运行echo$?，就可以打印出退出状态）
+
+
+下面的命令中，我们将stderr重定向到out.txt：
+
+    $ ls + 2> out.txt #正常运行
+
+你可以将stderr单独重定向到一个文件，将stdout重定向到另一个文件：
+
+    $ cmd 2>stderr.txt 1>stdout.txt
+
+还可以利用下面这个更好的方法将stderr转换成stdout，使得stderr和stdout都被重定向到同一个文件中：
+
+    $ cmd 2>&1 output.txt
+
+或者这样：
+
+    $ cmd &> output.txt
+
+(5)可以将stderr的输出重定向到/dev/null，保证一切都会被清除得干干净净。
+    
+    cmd 2 > /dev/null
+    
+(6)linux tee 命令详解
+功能说明：读取标准输入的数据，并将其内容输出成文件。
+语　　法：tee [-ai][--help][--version][文件...]
+补充说明：tee指令会从标准输入设备读取数据，将其内容输出到标准输出设备，同时保存成文件。
+参　　数：
+　-a或--append 　附加到既有文件的后面，而非覆盖它．
+　-i-i或--ignore-interrupts 　忽略中断信号。
+　--help 　在线帮助。
+　--version 　显示版本信息。 
+　
+----------
+1.6.3工作原理
+    **当使用重定向操作符时，输出内容不会在终端打印**，而是被导向文件。重定向操作符默认使用标准输出。如果想使用特定的文件描述符，你必须将描述符编号置于操作符之前。
+    \>等同于1>；对于>>来说，情况也类似（即>>等同于1>>）
+    处理错误时，来自stderr的输出被丢弃到文件/dev/null中。 /dev/null是一个特殊的设备文件，它接收到的任何数据都会被丢弃。null设备通常也被称为黑洞，因为凡是到这儿的数据都将一去不返。
+    
+----------
+1.6.4补充内容
+    1.将文件重定向到命令
+   
+    $ cmd < file
+  2.将脚本内部的文本块进行重定向
+    我们需要对文本块（多行文本）进行重定向，就像对标准输入做的那样.例：向log文件中写入头部数据
+    
+    #!/bin/bash
+    cat<<EOF>log.txt
+    LOG FILE HEADER
+    This is a test log file
+    Function: System statistics
+    EOF
+    
+在cat << EOF>log.txt与下一个EOF行之间的所有文本行都会被当做stdin数据。
+
+   3.自定义文件描述符
+    文件打开模式。通常会用到3种模式。
+     只读模式。  < 操作符用于从文件中读取至stdin。exec命令
+     截断写入模式。>操作符用于截断模式的文件写入（数据在目标文件
+内容被截断之后写入）。 
+     追加写入模式。>>操作符用于追加模式的文件写入。
+    例：
+    
+    $ exec 3<input.txt #使用文件描述符3打开并读取文件 
+    
+我们可以这样使用它：
+
+    $ echo this is a test line > input.txt
+    $ exec 3<input.txt
+
+现在你就可以在命令中使用文件描述符3了。例如：
+
+    $ cat<&3
+    this is a test line
+    
+如果要再次读取，我们就不能继续使用文件描述符3了，而是需要用exec重新分配文件描述
+符3来进行二次读取。
+创建一个文件描述符用于写入（截断模式）：
+
+    $ exec 4>output.txt #打开文件进行写入
+
+例如：
+
+    $ exec 4>output.txt
+    $ echo newline >&4
+    $ cat output.txt
+    newline
+
+创建一个文件描述符用于写入（追加模式）：
+
+    $ exec 5>>input.txt
+例如：
+
+    $ exec 5>>input.txt
+    $ echo appended line >&5
+    $ cat input.txt
+    newline
+    appended line
+        
+----------
+###1.7 数组和关联数组
+普通数组只能使用整数作为数组索引。 Bash也支持关联数组，它可以使用字符串作为数组索引。
+
+----------
+1.7.1 预备知识
+ bash从4.0版本开始支持关联数组
+ 
+----------
+1.7.2实战演练
+(1)定义数组
+    
+    array_var={1 2 3 4 5 6} ##这些值将会存储在以0为起始索引的连续位置上
+另外：
+
+    array_var[0]="test1"
+    array_var[1]="test2"
+    array_var[2]="test3"
+    array_var[3]="test4"
+      
+(2)打印特定索引的数组元素内容
+
+    echo ${array_var[0]}
+    test1
+    index=5
+    echo ${array_var[$index]}
+    test6
+    
+(3)以清单形式打印出数组中的所有值：
+    
+    $ echo ${array_var[*]}
+    test1 test2 test3 test4 test5 test6
+也可以这样使用：
+
+    $ echo ${array_var[@]}
+    test1 test2 test3 test4 test5 test6
+
+(4) 打印数组长度（即数组中元素的个数）：
+
+    $ echo ${#array_var[*]}
+    6
+    
+----------
+1.7.3补充内容
+
+ 1.定义关联数组 添加值 索引-值形式
+        需要使用声明语句将一个变量名声明为关联数组。
+        
+    $ declare -A ass_array
+
+声明之后，可以用两种方法将元素添加到关联数组中。
+    
+ 利用内嵌“索引-值”列表的方法，提供一个“索引-值”列表：
+
+    $ ass_array=([index1]=val1 [index2]=val2)
+
+ 使用独立的“索引-值”进行赋值：
+
+    $ ass_array[index1]=val1
+    $ ass_array[index2]=val2
+
+例：
+    
+    $ declare -A fruits_value
+    $ fruits_value=([apple]='100dollars' [orange]='150 dollars')
+
+2.列出数组索引
+    
+    $ echo ${!array_var[*]}
+也可以使用：
+
+    $ echo ${!array_var[@]}
+    
+----------
+###1.8使用别名
+别名就是一种便捷方式，以省去用户输入一长串命令序列的麻烦
+
+----------
+1.8.1实战演练
+(1) 可以按照下面的方式创建一个别名(格式)：
+    
+    $ alias new_command='command sequence'
+
+示例：为安装命令apt-get install创建别名：
+    
+    $ alias install='sudo apt-get install'
+这样一来，我们就可以用install pidgin代替sudo apt-get install pidgin了。
+(2)alias作用只是暂时的。一旦关闭当前终端，所有经过设置的别名就失效了。
+为了使别名设置一直保持作用，可以将它放入~/.bashrc文件中。因为每当一个新
+的shell进程生成时，都会执行 ~/.bashrc中的命令。
+
+    $ echo 'alias cmd="command seq"' >> ~/.bashrc
+    
+(3)如果需要删除别名，只用将其对应的语句(如果有的话)从~/.bashrc中删除，或者使用unalias命令。或者使用alias example=，这会取消名为example的别名。
+    
+(4) 我们可以创建一个别名rm，它能够删除原始文件，同时在backup目录中保留副本：
+
+    alias rm='cp $@ ~/backup && rm $@' #为删除的文件保留副本，防止误删除
+    
+创建别名时，如果已经有同名的别名存在，那么原有的别名设置将被新的设置取代。
+
+----------
+1.8.2补充内容
+  (1)对别名转义
+  
+    $ \command
+
+ 字符\对命令实施转义，使我们可以执行原本的命令，而不是这些命令的别名替身
+
+----------
+###1.9获取终端信息
+    终端行数、列数、光标 位置 密码 字段
+
+----------
+1.9.1预备知识
+ tput和stty
+
+----------
+1.9.2实战演练
+     获取终端的行数和列数：
+    
+    tput cols
+    tput lines
+
+ 打印出当前终端名：
+ 
+    tput longname
+
+ 将光标移动到坐标(100,100)处：
+
+    tput cup 100 100
+
+ 设置终端背景色：
+    
+    tputsetb n #其中， n可以在0到7之间取值。
+ 设置文本前景色：
+    
+    tputsetf n #其中， n可以在0到7之间取值。
+ 设置文本样式为粗体：
+    
+    tput bold
+ 设置下划线的起止：
+    
+    tput smul
+    tput rmul
+ 删除从当前光标位置到行尾的所有内容：
+    
+    tputed
+存储光标位置
+    
+    tput sc
+恢复光标位置的命令
+    
+    tput rc
+
+stty 选项-echo禁止将输出发送到终端，而选项echo则允许发送输出。
+
+----------
+###1.10获取、设置日期和延时
+
+----------
+1.10.1预备知识
+①1970年1月1日0时0分0秒②起所流逝的秒数。这种计时方式称为纪元时或Unix时间。
+
+----------
+1.10.2实战演练
+(1) 读取日期：
+
+    $ date
+    Thu May 20 23:09:04 IST 2010
+(2) 打印纪元时：
+
+    $ date +%s
+    1290047248
+(3) 选项--date用于提供日期串作为输入。  
+    
+    $ date --date "Thu Nov 18 08:07:21 IST 2010" +%s
+    1290047841
+
+(3)有时候，我们需要检查一组命令所花费的时间，可以使用以下代码：
+
+    #!/bin/bash
+    #文件名: time_take.sh
+    start=$(date +%s)
+    commands;
+    statements;
+    end=$(date +%s)
+    difference=$(( end - start))
+    echo Time taken to execute commands is $difference seconds.
+    
+另一种方法则是使用time<scriptpath>来得到执行脚本所花费的时间。
+
+----------
+1.10.3工作原理
+    纪元时被定义为从世界标准时间1970年1月1日0时0分0秒起至当前时刻的总秒数，不包括闰秒。
+
+| 日期时间 | 格式 | 
+| ------------- |:-------------:| 
+| 星期|  %a（例如： Sat） %A（例如： Saturday）|
+| 月 | %b（例如： Nov） %B（例如： November） | 
+| 日 | %d（例如： 31） | 
+| 固定格式日期 | %D（例如： 10/18/10） | 
+| 年 | %y（例如： 10）%Y（例如： 2010） | 
+| 小时 | %I或%H（例如： 08） | 
+| 分钟| %M（例如： 33） | 
+| 秒 | %S（例如： 10） | 
+| 纳秒 | %N（例如： 695208515） | 
+| Unix纪元时 | %s（例如： 1290049486） | 
+
+
+----------
+1.10.4补充内容
+在脚本中生成延时
+为了在脚本中推迟执行一段时间，可以使用sleep： $ sleep no_of_seconds.
+
+----------
+###1.11调试脚本
+
+----------
+1.11.1实战演练
+
+(1) 使用选项–x，启用shell脚本的跟踪调试功能：
+
+    $ bash -x script.sh
+也可以使用
+    
+    sh -x script
+(2) 使用set -x和set +x对脚本进行部分调试。
+    
+    set -x  #开启
+    echo $i 
+    set +x  #关闭
+(3) 前面介绍的调试手段是Bash内建的。它们通常以固定的格式生成调试信息。自定义格式显示调试信息。
+
+----------
+1.11.2工作原理
+ set –x：在执行时显示参数和命令。
+ set +x：禁止调试。
+ set –v：当命令进行读取时显示输入。
+ set +v：禁止打印输入。
+----------
+1.11.3补充内容
+shebang的妙用
+  把shebang从#!/bin/bash改成 #!/bin/bash -xv，这样一来，不用任何其他选项就可以
+启用调试功能了。
+
+----------
+###1.12函数和参数
+----------
+1.12.1实战演练
+    (1) 定义函数：
+    
+    function fname()
+    {
+    statements;
+    }
+或者：
+
+    fname()
+    {
+    statements;
+    }
+(2) 只需要使用函数名就可以调用某个函数：
+
+    $ fname ; #执行函数
+(3) 参数可以传递给函数，并由脚本进行访问：
+
+    fname arg1 arg2 ; #传递参数
+
+ $0是脚本名。
+
+ $1是第一个参数。
+
+ $2是第二个参数。
+
+ $n是第n个参数。
+
+ "$@" 被扩展成 "$1" "$2" "$3"等。
+
+ "$*" 被扩展成 "$1c$2c$3"，其中c是IFS的第一个字符。
+
+ "$@" 要比"$*"用得多。由于 "$*"将所有的参数当做单个字符串，因此它很少被使用。
+
+
+----------
+1.12.2补充内容
+(1)递归函数
+    F() { echo $1; F hello;sleep 1; }
+    
+    Fork炸弹:(){ :|:& };:
+这个递归函数能够调用自身，不断地生成新的进程，最终造成拒绝服务攻击。函数调用前的 & 将子进程放入后台。这段危险的代码会分支出大量的进程，因而称为Fork炸弹。
+    
+可以通过修改配置文件/etc/security/limits.conf来限制可生成的最大进程数来避开这枚炸弹
+
+(2)导出函数
+    函数也能像环境变量一样用export导出，如此一来，函数的作用域就可以扩展到子进程中，例如：
+    
+    export -f fname
+(3)读取命令返回值（状态）
+我们可以按照下面的方式获取命令或函数的返回值：
+    
+    cmd;
+    echo $?; 
+$? 会给出命令cmd的返回值。
+返回值被称为退出状态。它可用于分析命令执行成功与否。如果命令成功退出，那么退出状
+态为0，否则为非0。 
+    
+----------
+###1.13将命名序列的输出读入变量
+
+----------
+1.13.1预备知识
+    
+   过滤器（filter）。我们使用管道（pipe）连接每个过滤器。管道操作符是|。例如：
+    
+    $ cmd1 | cmd2 | cmd3
+cmd1的输出传递给cmd2，而cmd2的输出传递给cmd3，最终的输出（来自cmd3）将会被打印或导入某个文件。
+
+----------
+1.13.2实战演练
+(1) 先从组合两个命令开始：
+
+    $ ls | cat -n > out.txt
+ls的输出（当前目录内容的列表）被传给cat -n，后者将通过stdin所接收到输入内容加上行号，然后将输出重定向到文件out.txt。
+(2) 我们可以用下面的方法读取由管道相连的命令序列的输出：
+    
+    cmd_output=$(COMMANDS)
+这种方法被称为子shell。例如：
+    
+    cmd_output=$(ls | cat -n)
+    echo $cmd_output
+另一种被称为反引用（有些人们也称它为反标记）的方法也可以用于存储命令输出：
+    
+    cmd_output=`COMMANDS`
+例如：
+    
+    cmd_output=`ls | cat -n` #``可以执行命令
+    echo $cmd_output
+反引用与单引号可不是一回事，它位于键盘的 ~ 键上。
+
+----------
+1.13.3补充内容
+1.利用子shell生成一个独立的进程
+    使用()操作符来定义一个子shell
+    
+    pwd #当前路径
+    (cd /bin; ls); #子shell
+    pwd #当前路径
+**当命令在子shell中执行时，不会对当前shell有任何影响；所有的改变仅限于子shell内**
+2.通过引用子shell的方式保留空格和换行符
+    使用子shell或反引用的方法将命令的输出读入一个变量中，可以将它放入双引号
+中，以保留空格和换行符（\n）。
+    
+    $ cat text.txt
+    1
+    2
+    3
+    
+    
+    $ out=$(cat text.txt) #使用子shell读入到一个变量中，保留空格和换行符
+    $ echo $out
+    1 2 3 # Lost \n spacing in 1,2,3
+    
+----------
+###1.14不使用回车键来读取n个字符
+
+----------
+1.14.1实战演练
+(1) 下面的语句从输入中读取n个字符并存入变量variable_name：
+
+    read -n number_of_chars variable_name
+例如：
+
+    $ read -n 2 var
+    $ echo $var
+(2) 用无回显的方式读取密码：
+
+    read -s var
+(3) 显示提示信息：
+
+    read -p "Enter input:" var
+(4) 在特定时限内读取输入：
+    
+    read -t timeout var
+例如：
+
+    $ read -t 2 var #在2秒内将键入的字符串读入变量var
+(5) 用特定的定界符作为输入行的结束：
+    
+    read -d delim_char var
+例如：
+
+    $ read -d ":" var   
+    hello:#var 被设置为 hello
+    
+----------
+###1.15运行命令直至执行成功
+
+----------
+1.15.1实战演练
+
+    repeat() { while true; do $@ && return; done }
+    
+----------
+1.15.2工作原理
+我们创建了函数repeat，它包含了一个无限while循环，该循环执行以参数形式（通过$@
+问）传入函数的命令。如果命令执行成功，则返回，进而退出循环。
+
+----------
+1.15.3补充内容
+1.一种更快的做法
+true是作为/bin中的一个二进制文件来实现的。这就意味着每执行一次while循环，shell就不得不生成一个进程。如果不想这样，可以使用shell内建的“:”命令，它总是会返回为0的退出码：
+
+    repeat() { while :; do $@ && return; done } #return 0
+    
+2.增加延时 
+    
+    repeat wget -c http://www.example.com/software-0.1.tar.gz
+    repeat() { while :; do $@ && return; sleep 30; done }
+
+这使得命令每30秒运行一次
+
+----------
+###1.16字段分隔符和迭代器
+内部字段分隔符（Internal Field Separator， IFS）。
+内部字段分隔符是用于特定用途的定界符。 IFS是存储定界符的环境变量。它是当前shell环境使用的默认定界字符串。
+    
+----------
+1.16.1预备知识
+IFS的默认值为空白字符（换行符、制表符或者空格）。
+当IFS被设置为逗号时， shell将逗号视为一个定界符，因此变量$item在每次迭代中读取由
+逗号分隔的子串作为变量值。
+
+----------
+1.16.2实战演练
+ 
+    #!/bin/bash
+    #用途: 演示IFS的用法
+    line="root:x:0:0:root:/root:/bin/bash"
+    oldIFS=$IFS; #将默认的分割符进行保存
+    IFS=":" #指定:作为分割符
+    count=0
+    for item in $line;
+    do
+        [ $count -eq 0 ] && user=$item;
+        [ $count -eq 6 ] && shell=$item;
+        let count++
+    done;
+    IFS=$oldIFS #恢复原来的分割符
+    echo $user\'s shell is $shell;
+  输出为：
+  
+    root's shell is /bin/bash
+ 
+  for循环
+ 
+    for var in list;
+    do
+    commands; #使用变量$var
+    done
+list可以是一个字符串，也可以是一个序列。
+遍历从a到z:
+
+    for i in {a..z}; do actions; done;
+  while循环
+ 
+    while condition
+    do
+    commands;
+    done
+用true作为循环条件能够产生无限循环。
+ until循环
+在Bash中还可以使用一个特殊的循环until。它会一直执行循环，**直到给定的条件为真**。
+    例如：
+    
+    x=0;
+    until [ $x -eq 9 ]; #条件是[$x -eq 9 ]
+    do
+    let x++; echo $x;
+    done
+     
+----------
+###1.17 比较与测试
+
+----------
+1.17.1实战演练
+ if条件
+
+    if condition;
+    then
+        commands;
+    fi
+ else if和else
+
+    if condition;
+    then
+        commands;
+    else if condition; then
+        commands;
+    else
+        commands;
+    fi
+    
+     [ condition ] && action; # 如果condition为真，则执行action；
+     [ condition ] || action; # 如果condition为假，则执行action。
+
+** 算术比较**
+条件通常被放置在封闭的中括号内。一定要注意在[或]与操作数之间有一个空格。如果
+忘记了这个空格，脚本就会报错。
+
+    [ $var -eq 0 ] #当 $var 等于 0 时，返回真
+    [ $var -ne 0 ] #当 $var 为非 0 时，返回真
+
+    -gt：大于。
+    -lt：小于。
+    -ge：大于或等于。
+    -le：小于或等于。
+    
+    [ $var1 -ne 0 -a $var2 -gt 2 ] #使用逻辑与-a
+    [ $var1 -ne 0 -o var2 -gt 2 ] #逻辑或 -o
+
+** 文件系统相关测试**
+    
+ [ -f $file_var ]：如果给定的变量包含正常的文件路径或文件名，则返回真。
+
+ [ -x $var ]：如果给定的变量包含的文件可执行，则返回真。
+
+ [ -d $var ]：如果给定的变量包含的是目录，则返回真。
+
+ [ -e $var ]：如果给定的变量包含的文件存在，则返回真。
+
+ [ -c $var ]：如果给定的变量包含的是一个字符设备文件的路径，则返回真。
+
+ [ -b $var ]：如果给定的变量包含的是一个块设备文件的路径，则返回真。
+
+ [ -w $var ]：如果给定的变量包含的文件可写，则返回真。
+
+ [ -r $var ]：如果给定的变量包含的文件可读，则返回真。
+
+ [ -L $var ]：如果给定的变量包含的是一个符号链接，则返回真。
+
+** 字符串比较**
+使用字符串比较时，最好用双中括号，因为有时候采用单个中括号会产生错误，所以最
+好避开它们。
+可以用下面的方法检查两个字符串，看看它们是否相同。
+
+     [[ $str1 = $str2 ]]：当str1等于str2时，返回真。也就是说， str1和str2包含
+    的文本是一模一样的。
+     [[ $str1 == $str2 ]]：这是检查字符串是否相等的另一种写法。
+     [[ -z $str1 ]]：如果str1包含的是空字符串，则返回真。
+     [[ -n $str1 ]]：如果str1包含的是非空字符串，则返回真。
+
+**注意在= 前后各有一个空格。如果忘记加空格，那就不是比关系了，而变成了赋值语句。**
+test命令可以用来执行条件检测。用test可以避免使用过多
+试条件同样可以用于test命令。
+例如：
+
+    if [ $var -eq 0 ]; then echo "True"; fi
+也可以写成：
+
+    if test $var -eq 0 ; then echo "True"; fi
